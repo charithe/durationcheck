@@ -64,39 +64,39 @@ func check(pass *analysis.Pass) func(ast.Node) {
 			return
 		}
 
-		if isDuration(x) && isDuration(y) {
+		if isDuration(x.Type) && isDuration(y.Type) {
 			// check that both sides are acceptable expressions
-			if isUnacceptableExpr(expr.X) && isUnacceptableExpr(expr.Y) {
+			if isUnacceptableExpr(pass, expr.X) && isUnacceptableExpr(pass, expr.Y) {
 				pass.Reportf(expr.Pos(), "Multiplication of durations: `%s`", formatNode(expr))
 			}
 		}
 	}
 }
 
-func isDuration(x types.TypeAndValue) bool {
-	return x.Type.String() == "time.Duration"
+func isDuration(x types.Type) bool {
+	return x.String() == "time.Duration"
 }
 
 // isUnacceptableExpr returns true if the argument is not an acceptable time.Duration expression
-func isUnacceptableExpr(expr ast.Expr) bool {
+func isUnacceptableExpr(pass *analysis.Pass, expr ast.Expr) bool {
 	switch e := expr.(type) {
 	case *ast.BasicLit: // constants are acceptable
 		return false
 	case *ast.CallExpr: // explicit casting of constants such as `time.Duration(10)` is acceptable
-		return !isConstExprCastToDuration(e)
+		return !isAcceptableCast(pass, e)
 	}
 	return true
 }
 
-// isConstExprCastToDuration returns true if the argument is a constant expression cast to time.Duration
-func isConstExprCastToDuration(e *ast.CallExpr) bool {
+// isAcceptableCast returns true if the argument is a constant expression cast to time.Duration
+func isAcceptableCast(pass *analysis.Pass, e *ast.CallExpr) bool {
 	// check that there's a single argument
 	if len(e.Args) != 1 {
 		return false
 	}
 
-	// check that the argument is a constant expression
-	if !allConstArgs(e.Args[0]) {
+	// check that the argument is acceptable
+	if !isAcceptableCastArg(pass, e.Args[0]) {
 		return false
 	}
 
@@ -118,15 +118,15 @@ func isConstExprCastToDuration(e *ast.CallExpr) bool {
 	return selector.Sel.Name == "Duration"
 }
 
-// allConstArgs checks that the argument is a constant expression
-func allConstArgs(n ast.Node) bool {
+func isAcceptableCastArg(pass *analysis.Pass, n ast.Expr) bool {
 	switch e := n.(type) {
 	case *ast.BasicLit:
 		return true
 	case *ast.BinaryExpr:
-		return allConstArgs(e.X) && allConstArgs(e.Y)
+		return isAcceptableCastArg(pass, e.X) && isAcceptableCastArg(pass, e.Y)
 	default:
-		return false
+		argType := pass.TypesInfo.TypeOf(n)
+		return !isDuration(argType)
 	}
 }
 

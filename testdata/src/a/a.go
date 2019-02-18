@@ -8,6 +8,7 @@ const timeout = 10 * time.Second
 
 func multiplyTwoDurations() {
 	x := 30 * time.Second
+	y := 10
 
 	_ = time.Second * 30
 
@@ -18,6 +19,14 @@ func multiplyTwoDurations() {
 	_ = time.Duration(10+20*5) * time.Second
 
 	_ = time.Second * time.Duration(10+20*5)
+
+	_ = time.Duration(y) * time.Second
+
+	_ = time.Second * time.Duration(y)
+
+	_ = time.Duration(someDurationMillis()) * time.Millisecond
+
+	_ = time.Millisecond * time.Duration(someDurationMillis())
 
 	_ = timeout / time.Millisecond
 
@@ -42,4 +51,8 @@ func multiplyTwoDurations() {
 
 func someDuration() time.Duration {
 	return 10 * time.Second
+}
+
+func someDurationMillis() int {
+	return 10
 }
