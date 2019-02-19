@@ -1,7 +1,7 @@
 Duration Check
 ===============
 
-A Go linter that detects cases where two `time.Duration` values are being multiplied in possibly erroneous ways.
+A Go linter to detect cases where two `time.Duration` values are being multiplied in possibly erroneous ways.
 
 For example, consider the following snippet:
 
@@ -18,22 +18,17 @@ reasonably expect `waitFor(5 * time.Seconds)` to wait for ~5 seconds but they wo
 A majority of these problems would be spotted almost immediately but some could still slip through unnoticed. Hopefully
 this linter will help catch those rare cases before they cause a production issue.
 
+See the [test cases](testdata/src/a/a.go) for more examples of the types of errors detected by the linter.
+
 
 Installation
 -------------
 
-Grab the sources with go-get
+Requires Go 1.11 or above.
 
 ```
-go get -d github.com/charithe/durationcheck
+go get -u github.com/charithe/durationcheck/cmd/durationcheck
 ```
-
-To install a standalone binary in `$GOPATH/bin`:
-
-```
-cd $GOPATH/src/github.com/charithe/durationcheck && make install
-```
-
 
 Usage
 -----

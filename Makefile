@@ -1,5 +1,5 @@
 build:
-	@GO111MODULE=on go build -ldflags '-s -w' -o durationcheck cmd/main.go
+	@GO111MODULE=on go build -ldflags '-s -w' -o durationcheck ./cmd/durationcheck/main.go
 
-install: build
-	@mv durationcheck $(GOPATH)/bin/durationcheck
+install: 
+	@GO111MODULE=on go install -ldflags '-s -w' ./cmd/durationcheck
