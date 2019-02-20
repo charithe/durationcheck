@@ -80,15 +80,19 @@ func isDuration(x types.Type) bool {
 // isUnacceptableExpr returns true if the argument is not an acceptable time.Duration expression
 func isUnacceptableExpr(pass *analysis.Pass, expr ast.Expr) bool {
 	switch e := expr.(type) {
-	case *ast.BasicLit: // constants are acceptable
+	case *ast.BasicLit:
 		return false
-	case *ast.CallExpr: // explicit casting of constants such as `time.Duration(10)` is acceptable
+	case *ast.CallExpr:
 		return !isAcceptableCast(pass, e)
+	case *ast.BinaryExpr:
+		return !isAcceptableNestedExpr(pass, e)
+	case *ast.UnaryExpr:
+		return !isAcceptableNestedExpr(pass, e)
 	}
 	return true
 }
 
-// isAcceptableCast returns true if the argument is a constant expression cast to time.Duration
+// isAcceptableCast returns true if the argument is an acceptable expression cast to time.Duration
 func isAcceptableCast(pass *analysis.Pass, e *ast.CallExpr) bool {
 	// check that there's a single argument
 	if len(e.Args) != 1 {
@@ -96,7 +100,7 @@ func isAcceptableCast(pass *analysis.Pass, e *ast.CallExpr) bool {
 	}
 
 	// check that the argument is acceptable
-	if !isAcceptableCastArg(pass, e.Args[0]) {
+	if !isAcceptableNestedExpr(pass, e.Args[0]) {
 		return false
 	}
 
@@ -106,6 +110,10 @@ func isAcceptableCast(pass *analysis.Pass, e *ast.CallExpr) bool {
 		return false
 	}
 
+	return isDurationCast(selector)
+}
+
+func isDurationCast(selector *ast.SelectorExpr) bool {
 	pkg, ok := selector.X.(*ast.Ident)
 	if !ok {
 		return false
@@ -118,16 +126,22 @@ func isAcceptableCast(pass *analysis.Pass, e *ast.CallExpr) bool {
 	return selector.Sel.Name == "Duration"
 }
 
-func isAcceptableCastArg(pass *analysis.Pass, n ast.Expr) bool {
+func isAcceptableNestedExpr(pass *analysis.Pass, n ast.Expr) bool {
 	switch e := n.(type) {
 	case *ast.BasicLit:
 		return true
 	case *ast.BinaryExpr:
-		return isAcceptableCastArg(pass, e.X) && isAcceptableCastArg(pass, e.Y)
-	default:
-		argType := pass.TypesInfo.TypeOf(n)
-		return !isDuration(argType)
+		return isAcceptableNestedExpr(pass, e.X) && isAcceptableNestedExpr(pass, e.Y)
+	case *ast.UnaryExpr:
+		return isAcceptableNestedExpr(pass, e.X)
+	case *ast.Ident:
+		t := pass.TypesInfo.TypeOf(e)
+		return !isDuration(t)
+	case *ast.CallExpr:
+		t := pass.TypesInfo.TypeOf(e)
+		return !isDuration(t)
 	}
+	return false
 }
 
 func formatNode(node ast.Node) string {
@@ -140,8 +154,8 @@ func formatNode(node ast.Node) string {
 	return buf.String()
 }
 
-func printAST(node ast.Node) {
-	fmt.Printf(">>> %s\n", formatNode(node))
+func printAST(msg string, node ast.Node) {
+	fmt.Printf(">>> %s:\n%s\n\n\n", msg, formatNode(node))
 	ast.Fprint(os.Stdout, nil, node, nil)
 	fmt.Println("--------------")
 }

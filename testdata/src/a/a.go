@@ -6,8 +6,7 @@ import (
 
 const timeout = 10 * time.Second
 
-func multiplyTwoDurations() {
-	x := 30 * time.Second
+func validCases() {
 	y := 10
 
 	_ = time.Second * 30
@@ -20,6 +19,14 @@ func multiplyTwoDurations() {
 
 	_ = time.Second * time.Duration(10+20*5)
 
+	_ = 2 * 24 * time.Hour
+
+	_ = time.Hour * 2 * 24
+
+	_ = -1 * time.Hour
+
+	_ = time.Hour * -1
+
 	_ = time.Duration(y) * time.Second
 
 	_ = time.Second * time.Duration(y)
@@ -29,12 +36,16 @@ func multiplyTwoDurations() {
 	_ = time.Millisecond * time.Duration(someDurationMillis())
 
 	_ = timeout / time.Millisecond
+}
 
-	_ = timeout * time.Millisecond // want `Multiplication of durations`
+func invalidCases() {
+	x := 30 * time.Second
 
 	_ = x * time.Second // want `Multiplication of durations`
 
 	_ = time.Second * x // want `Multiplication of durations`
+
+	_ = timeout * time.Millisecond // want `Multiplication of durations`
 
 	_ = someDuration() * time.Second // want `Multiplication of durations`
 
