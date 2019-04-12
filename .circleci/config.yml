@@ -8,3 +8,8 @@ jobs:
       - checkout
       - run: go test ./...
 
+workflows:
+  version: 2.1
+  test:
+    jobs:
+      - test
