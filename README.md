@@ -1,3 +1,7 @@
+[![CircleCI](https://circleci.com/gh/charithe/durationcheck.svg?style=svg)](https://circleci.com/gh/charithe/durationcheck)
+
+
+
 Duration Check
 ===============
 
