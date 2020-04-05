@@ -35,6 +35,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	}
 
 	inspect.Preorder(nodeTypes, check(pass))
+
 	return nil, nil
 }
 
@@ -60,6 +61,7 @@ func check(pass *analysis.Pass) func(ast.Node) {
 		// get the types of the two operands
 		x, xOK := pass.TypesInfo.Types[expr.X]
 		y, yOK := pass.TypesInfo.Types[expr.Y]
+
 		if !xOK || !yOK {
 			return
 		}
@@ -82,6 +84,8 @@ func isUnacceptableExpr(pass *analysis.Pass, expr ast.Expr) bool {
 	switch e := expr.(type) {
 	case *ast.BasicLit:
 		return false
+	case *ast.Ident:
+		return !isAcceptableNestedExpr(pass, e)
 	case *ast.CallExpr:
 		return !isAcceptableCast(pass, e)
 	case *ast.BinaryExpr:
@@ -89,6 +93,7 @@ func isUnacceptableExpr(pass *analysis.Pass, expr ast.Expr) bool {
 	case *ast.UnaryExpr:
 		return !isAcceptableNestedExpr(pass, e)
 	}
+
 	return true
 }
 
@@ -135,13 +140,18 @@ func isAcceptableNestedExpr(pass *analysis.Pass, n ast.Expr) bool {
 	case *ast.UnaryExpr:
 		return isAcceptableNestedExpr(pass, e.X)
 	case *ast.Ident:
-		t := pass.TypesInfo.TypeOf(e)
-		return !isDuration(t)
+		return isAcceptableIdent(pass, e)
 	case *ast.CallExpr:
 		t := pass.TypesInfo.TypeOf(e)
 		return !isDuration(t)
 	}
+
 	return false
+}
+
+func isAcceptableIdent(pass *analysis.Pass, ident *ast.Ident) bool {
+	obj := pass.TypesInfo.ObjectOf(ident)
+	return !isDuration(obj.Type())
 }
 
 func formatNode(node ast.Node) string {

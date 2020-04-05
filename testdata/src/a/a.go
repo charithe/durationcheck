@@ -4,7 +4,10 @@ import (
 	"time"
 )
 
-const timeout = 10 * time.Second
+const (
+	timeout = 10 * time.Second
+	foo     = 10
+)
 
 func validCases() {
 	y := 10
@@ -36,6 +39,10 @@ func validCases() {
 	_ = time.Millisecond * time.Duration(someDurationMillis())
 
 	_ = timeout / time.Millisecond
+
+	_ = foo * time.Second
+
+	_ = time.Second * foo
 }
 
 func invalidCases() {
