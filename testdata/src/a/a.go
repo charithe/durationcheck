@@ -9,8 +9,14 @@ const (
 	foo     = 10
 )
 
+type myStruct struct {
+	fieldA int
+	fieldB time.Duration
+}
+
 func validCases() {
 	y := 10
+	ms := myStruct{fieldA: 10, fieldB: 10 * time.Second}
 
 	_ = time.Second * 30
 
@@ -43,10 +49,15 @@ func validCases() {
 	_ = foo * time.Second
 
 	_ = time.Second * foo
+
+	_ = time.Duration(ms.fieldA) * time.Second
+
+	_ = time.Second * time.Duration(ms.fieldA)
 }
 
 func invalidCases() {
 	x := 30 * time.Second
+	ms := myStruct{fieldA: 10, fieldB: 10 * time.Second}
 
 	_ = x * time.Second // want `Multiplication of durations`
 
@@ -65,6 +76,10 @@ func invalidCases() {
 	_ = time.Millisecond * time.Second * 1 // want `Multiplication of durations`
 
 	_ = 1 * time.Second * (time.Second) // want `Multiplication of durations`
+
+	_ = ms.fieldB * time.Second // want `Multiplication of durations`
+
+	_ = time.Second * ms.fieldB // want `Multiplication of durations`
 }
 
 func someDuration() time.Duration {
