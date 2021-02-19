@@ -1,6 +1,7 @@
 package a
 
 import (
+	"b"
 	"time"
 )
 
@@ -53,6 +54,10 @@ func validCases() {
 	_ = time.Duration(ms.fieldA) * time.Second
 
 	_ = time.Second * time.Duration(ms.fieldA)
+
+	_ = b.SomeInt * time.Second
+
+	_ = time.Second * b.SomeInt
 }
 
 func invalidCases() {
@@ -80,6 +85,10 @@ func invalidCases() {
 	_ = ms.fieldB * time.Second // want `Multiplication of durations`
 
 	_ = time.Second * ms.fieldB // want `Multiplication of durations`
+
+	_ = b.SomeDuration * time.Second // want `Multiplication of durations`
+
+	_ = time.Second * b.SomeDuration // want `Multiplication of durations`
 }
 
 func someDuration() time.Duration {
