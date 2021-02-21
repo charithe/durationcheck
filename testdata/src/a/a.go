@@ -1,8 +1,9 @@
 package a
 
 import (
-	"b"
 	"time"
+
+	"b"
 )
 
 const (
@@ -13,11 +14,12 @@ const (
 type myStruct struct {
 	fieldA int
 	fieldB time.Duration
+	fieldC *int
 }
 
 func validCases() {
 	y := 10
-	ms := myStruct{fieldA: 10, fieldB: 10 * time.Second}
+	ms := myStruct{fieldA: 10, fieldB: 10 * time.Second, fieldC: func(v int) *int { return &v }(10)}
 
 	_ = time.Second * 30
 
@@ -45,6 +47,10 @@ func validCases() {
 
 	_ = time.Millisecond * time.Duration(someDurationMillis())
 
+	_ = time.Duration(*somePointerDurationMillis()) * time.Millisecond
+
+	_ = time.Millisecond * time.Duration(*somePointerDurationMillis())
+
 	_ = timeout / time.Millisecond
 
 	_ = foo * time.Second
@@ -54,6 +60,10 @@ func validCases() {
 	_ = time.Duration(ms.fieldA) * time.Second
 
 	_ = time.Second * time.Duration(ms.fieldA)
+
+	_ = time.Duration(*ms.fieldC) * time.Second
+
+	_ = time.Second * time.Duration(*ms.fieldC)
 
 	_ = b.SomeInt * time.Second
 
@@ -73,6 +83,10 @@ func invalidCases() {
 	_ = someDuration() * time.Second // want `Multiplication of durations`
 
 	_ = time.Millisecond * someDuration() // want `Multiplication of durations`
+
+	_ = *somePointerDuration() * time.Second // want `Multiplication of durations`
+
+	_ = time.Millisecond * *somePointerDuration() // want `Multiplication of durations`
 
 	_ = (30 * time.Second) * time.Millisecond // want `Multiplication of durations`
 
@@ -97,4 +111,14 @@ func someDuration() time.Duration {
 
 func someDurationMillis() int {
 	return 10
+}
+
+func somePointerDuration() *time.Duration {
+	v := 10 * time.Second
+	return &v
+}
+
+func somePointerDurationMillis() *int {
+	v := 10
+	return &v
 }
