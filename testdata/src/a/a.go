@@ -1,9 +1,8 @@
 package a
 
 import (
-	"time"
-
 	"b"
+	"time"
 )
 
 const (
@@ -30,6 +29,10 @@ func validCases() {
 	_ = time.Duration(10+20*5) * time.Second
 
 	_ = time.Second * time.Duration(10+20*5)
+
+	_ = time.Duration((foo + 20)) * time.Second
+
+	_ = time.Second * time.Duration((foo + 20))
 
 	_ = 2 * 24 * time.Hour
 
