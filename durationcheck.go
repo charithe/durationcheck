@@ -98,6 +98,8 @@ func isUnacceptableExpr(pass *analysis.Pass, expr ast.Expr) bool {
 		return !isAcceptableNestedExpr(pass, e)
 	case *ast.ParenExpr:
 		return !isAcceptableNestedExpr(pass, e)
+	case *ast.IndexExpr:
+		return !isAcceptableNestedExpr(pass, e)
 	default:
 		return true
 	}
@@ -156,6 +158,9 @@ func isAcceptableNestedExpr(pass *analysis.Pass, n ast.Expr) bool {
 		return isAcceptableNestedExpr(pass, e.X)
 	case *ast.ParenExpr:
 		return isAcceptableNestedExpr(pass, e.X)
+	case *ast.IndexExpr:
+		t := pass.TypesInfo.TypeOf(e)
+		return !isDuration(t)
 	default:
 		return false
 	}
