@@ -19,6 +19,7 @@ type myStruct struct {
 func validCases() {
 	y := 10
 	ms := myStruct{fieldA: 10, fieldB: 10 * time.Second, fieldC: func(v int) *int { return &v }(10)}
+	intArr := []int{1}
 
 	_ = time.Second * 30
 
@@ -71,11 +72,14 @@ func validCases() {
 	_ = b.SomeInt * time.Second
 
 	_ = time.Second * b.SomeInt
+
+	_ = time.Duration(intArr[0]) * time.Second
 }
 
 func invalidCases() {
 	x := 30 * time.Second
 	ms := myStruct{fieldA: 10, fieldB: 10 * time.Second}
+	tdArr := []time.Duration{1}
 
 	_ = x * time.Second // want `Multiplication of durations`
 
@@ -106,6 +110,8 @@ func invalidCases() {
 	_ = b.SomeDuration * time.Second // want `Multiplication of durations`
 
 	_ = time.Second * b.SomeDuration // want `Multiplication of durations`
+
+	_ = time.Duration(tdArr[0]) * time.Second // want `Multiplication of durations`
 }
 
 func someDuration() time.Duration {
