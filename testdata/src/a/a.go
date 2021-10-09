@@ -74,6 +74,8 @@ func validCases() {
 	_ = time.Second * b.SomeInt
 
 	_ = time.Duration(intArr[0]) * time.Second
+
+	_ = time.Duration(y) * 24 * time.Hour
 }
 
 func invalidCases() {
