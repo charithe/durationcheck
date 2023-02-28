@@ -1,0 +1,23 @@
+---
+name: Tests
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  generate:
+    name: Generate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.20.x
+          check-latest: true
+
+      - name: Test
+        run: go test ./...
+
