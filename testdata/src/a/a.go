@@ -76,6 +76,9 @@ func validCases() {
 	_ = time.Duration(intArr[0]) * time.Second
 
 	_ = time.Duration(y) * 24 * time.Hour
+
+	x := time.Second
+	x *= time.Duration(5)
 }
 
 func invalidCases() {
@@ -114,6 +117,10 @@ func invalidCases() {
 	_ = time.Second * b.SomeDuration // want `Multiplication of durations`
 
 	_ = time.Duration(tdArr[0]) * time.Second // want `Multiplication of durations`
+
+	x *= time.Second // want `Multiplication of durations`
+
+	x *= time.Duration(5) * time.Second // want `Multiplication of durations`
 }
 
 func someDuration() time.Duration {
